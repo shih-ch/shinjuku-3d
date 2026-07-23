@@ -432,6 +432,13 @@ document.getElementById('reset-cam').addEventListener('click', () => {
   controls.target.copy(TARGET_HOME);
 });
 
+// --- 側邊欄收合 ---
+const panelToggle = document.getElementById('panel-toggle');
+panelToggle.addEventListener('click', () => {
+  const hidden = document.body.classList.toggle('panel-hidden');
+  panelToggle.textContent = hidden ? '☰' : '◀';
+});
+
 // --- 羅盤 ---
 const compassRose = document.getElementById('compass-rose');
 const _sph = new THREE.Spherical();
