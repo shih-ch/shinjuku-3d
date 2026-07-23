@@ -78,7 +78,7 @@ export async function buildBasemap(style) {
   const geo = new THREE.PlaneGeometry(east - west, north - south);
   geo.rotateX(-Math.PI / 2);
   const mat = new THREE.MeshLambertMaterial({
-    map: tex, transparent: true, opacity: 0.85, depthWrite: false,
+    map: tex, transparent: true, opacity: 0.6, depthWrite: false,
   });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.position.set((west + east) / 2, -0.5, -(north + south) / 2);

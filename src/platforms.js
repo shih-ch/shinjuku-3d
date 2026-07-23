@@ -46,7 +46,13 @@ export function buildPlatforms(data) {
   for (const [elev, geos] of buckets) {
     const merged = mergeGeometries(geos, false);
     geos.forEach((x) => x.dispose());
-    const mesh = new THREE.Mesh(merged, new THREE.MeshLambertMaterial({ color: COLOR }));
+    const mat = new THREE.MeshLambertMaterial({ color: COLOR });
+    const mesh = new THREE.Mesh(merged, mat);
+    if (elev < 0) {
+      // 地下月台：排在半透明底圖之後渲染，避免被蓋淡
+      mat.transparent = true;
+      mesh.renderOrder = 2;
+    }
     const g = new THREE.Group();
     g.add(mesh);
     g.position.y = elev;

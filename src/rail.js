@@ -68,7 +68,13 @@ export function buildRail(data) {
       emissive: line.color,
       emissiveIntensity: 0.25,
     });
-    g.add(new THREE.Mesh(merged, mat));
+    const mesh = new THREE.Mesh(merged, mat);
+    if (line.elev < 0) {
+      // 地下線：排在半透明底圖之後渲染，避免被蓋淡（X 光效果）
+      mat.transparent = true;
+      mesh.renderOrder = 2;
+    }
+    g.add(mesh);
 
     // 標籤放在離站中心最遠的端點（進場方向一目瞭然）
     if (far) {
