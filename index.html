@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>新宿駅 3D 立體構造</title>
+  <style>
+    :root {
+      --ink: #3d3628;
+      --paper: #f2ecd9;
+      --panel: rgba(250, 246, 233, 0.94);
+      --accent: #c8552e;
+      --line: #d8cfb4;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: "Noto Sans TC", "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+    }
+    #app { position: fixed; inset: 0; }
+    #panel {
+      position: fixed;
+      top: 12px; left: 12px;
+      width: 265px;
+      max-height: calc(100% - 24px);
+      overflow-y: auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 16px;
+      box-shadow: 0 4px 18px rgba(61, 54, 40, 0.18);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    #panel h1 {
+      font-size: 16px;
+      letter-spacing: 0.06em;
+      margin-bottom: 2px;
+    }
+    #panel h1 .dot {
+      display: inline-block;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-right: 6px;
+    }
+    #panel .sub { font-size: 11px; color: #7a715c; margin-bottom: 10px; }
+    #panel section { border-top: 1px solid var(--line); padding: 9px 0; }
+    #panel section h2 {
+      font-size: 12px;
+      color: #8a8069;
+      font-weight: 600;
+      margin-bottom: 6px;
+      letter-spacing: 0.08em;
+    }
+    label.row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      padding: 1px 0;
+      user-select: none;
+    }
+    label.row input { accent-color: var(--accent); }
+    label.row .elev { margin-left: auto; font-size: 11px; color: #9a917a; }
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    .slider-val { font-variant-numeric: tabular-nums; color: var(--accent); font-weight: 600; }
+    #legend { display: none; grid-template-columns: 1fr 1fr; gap: 2px 8px; font-size: 11.5px; }
+    #legend.open { display: grid; }
+    #legend .sw {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 2px;
+      margin-right: 5px;
+      vertical-align: -1px;
+    }
+    #legend-toggle {
+      background: none; border: none;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 11.5px;
+      padding: 0;
+    }
+    #status {
+      position: fixed;
+      bottom: 10px; left: 12px;
+      font-size: 11px;
+      color: #8a8069;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 3px 10px;
+    }
+    #credit {
+      position: fixed;
+      bottom: 10px; right: 12px;
+      font-size: 10.5px;
+      color: #9a917a;
+      text-align: right;
+      background: rgba(250, 246, 233, 0.8);
+      border-radius: 6px;
+      padding: 2px 8px;
+    }
+    button.act {
+      background: var(--accent);
+      color: #fdfaf1;
+      border: none;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    button.act:hover { filter: brightness(1.1); }
+    #compass {
+      position: fixed;
+      top: 14px; right: 14px;
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: 0 3px 12px rgba(61, 54, 40, 0.2);
+      cursor: pointer;
+      user-select: none;
+    }
+    #compass .rose {
+      position: absolute;
+      inset: 0;
+      transition: none;
+    }
+    #compass .needle {
+      position: absolute;
+      left: 50%; top: 50%;
+      width: 0; height: 0;
+      transform: translate(-50%, -100%);
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-bottom: 24px solid var(--accent);
+    }
+    #compass .tail {
+      position: absolute;
+      left: 50%; top: 50%;
+      width: 0; height: 0;
+      transform: translate(-50%, 0);
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 24px solid #b8ad91;
+    }
+    #compass .n {
+      position: absolute;
+      top: 3px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .op-dot {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <div id="panel">
+    <h1><span class="dot"></span>新宿駅 3D 立體構造</h1>
+    <div class="sub">屋內地圖開放資料 × PLATEAU 2025</div>
+
+    <section>
+      <h2>樓層分離 <span class="slider-val" id="sep-val">×1.0</span></h2>
+      <input type="range" id="sep" min="1" max="4" step="0.05" value="1" />
+      <div style="font-size:11px;color:#9a917a">×1 為實際高度；拉大變成解剖圖</div>
+    </section>
+
+    <section>
+      <h2>樓層</h2>
+      <div id="levels"></div>
+    </section>
+
+    <section>
+      <h2>PLATEAU 圖層</h2>
+      <label class="row"><input type="checkbox" id="tg-bldg" checked />地面建築（LOD2）</label>
+      <label class="row"><input type="checkbox" id="tg-ubld" checked />地下街 LOD4</label>
+      <div style="font-size:10.5px;color:#9a917a;margin-left:20px">
+        僅涵蓋サブナード・メトロプロムナード等商業地下街；<br />
+        車站構內與其他通道請看樓層／步行網路圖層
+      </div>
+      <label class="row" style="margin-top:4px">建築透明度
+        <input type="range" id="bldg-op" min="0.1" max="1" step="0.05" value="0.92" style="width:90px;margin-left:auto" />
+      </label>
+    </section>
+
+    <section>
+      <h2>步行網路</h2>
+      <label class="row"><input type="checkbox" id="tg-net" checked />流動動畫（藍＝通路・橙＝上下移動）</label>
+    </section>
+
+    <section>
+      <h2>地下補完（OSM 2026 現況）</h2>
+      <label class="row"><input type="checkbox" id="tg-tun" checked />地下通道・站廳（含タイムズアベニュー・高島屋連絡）</label>
+      <label class="row"><input type="checkbox" id="tg-plat" checked />全線月台</label>
+      <label class="row"><input type="checkbox" id="tg-exit" checked />出入口編號（A・B・C・E 系）</label>
+    </section>
+
+    <section>
+      <h2>地面底圖</h2>
+      <label class="row"><input type="radio" name="base" value="none" />素色</label>
+      <label class="row"><input type="radio" name="base" value="pale" checked />淡色地圖（地理院）</label>
+      <label class="row"><input type="radio" name="base" value="photo" />航空写真（地理院）</label>
+      <label class="row">底圖不透明度
+        <input type="range" id="base-op" min="0.3" max="1" step="0.05" value="0.85" style="width:80px;margin-left:auto" />
+      </label>
+    </section>
+
+    <section>
+      <h2>導航（步行網路）</h2>
+      <div style="display:flex;gap:6px">
+        <button class="act" id="nav-start" style="margin-top:0">設起點</button>
+        <button class="act" id="nav-end" style="margin-top:0;background:#8a3b2a">設終點</button>
+        <button class="act" id="nav-clear" style="margin-top:0;background:#9a917a">清除</button>
+      </div>
+      <div id="nav-info" style="font-size:11.5px;color:#7a715c;margin-top:5px">按「設起點」後點擊場景中的通路</div>
+    </section>
+
+    <section>
+      <h2>體驗</h2>
+      <label class="row"><input type="checkbox" id="tg-ink" checked />墨線描邊（手繪風）</label>
+      <label class="row"><input type="checkbox" id="tg-ppl" checked />人流粒子</label>
+    </section>
+
+    <section>
+      <h2>鐵道路線</h2>
+      <div id="rail-ops"></div>
+    </section>
+
+    <section>
+      <h2>上色模式</h2>
+      <label class="row"><input type="radio" name="cmode" value="cat" checked />依空間類別</label>
+      <label class="row"><input type="radio" name="cmode" value="toll" />改札內（收費區）強調</label>
+      <button id="legend-toggle">顯示圖例 ▾</button>
+      <div id="legend"></div>
+    </section>
+
+    <section>
+      <button class="act" id="reset-cam">回到初始視角</button>
+    </section>
+  </div>
+
+  <div id="compass" title="點擊回正北">
+    <div class="rose" id="compass-rose">
+      <div class="needle"></div>
+      <div class="tail"></div>
+      <div class="n">N</div>
+    </div>
+  </div>
+
+  <div id="status">載入中…</div>
+  <div id="credit">
+    出典：国土交通省 Project PLATEAU（新宿区 2025）／新宿駅周辺屋内地図・<br />
+    歩行空間ネットワークデータ／地理院タイル／© OpenStreetMap contributors
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
