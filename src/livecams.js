@@ -3,6 +3,7 @@ import { M_LON, M_LAT } from './basemap.js';
 import { ORIGIN_LON, ORIGIN_LAT } from './config.js';
 
 // 新宿周邊 YouTube 24h 直播攝影機（位置為概略值）
+// id＝固定影片；channel＝頻道 live embed（直播 ID 輪替也不會失效）
 const CAMS = [
   { id: 'DjdUEyjx8GM', name: '歌舞伎町一番街 LIVE', lon: 139.70265, lat: 35.69384 },
   { id: 'gFRtAAmiFbE', name: '歌舞伎町 LIVE 2', lon: 139.70292, lat: 35.69452 },
@@ -10,7 +11,13 @@ const CAMS = [
   { id: 'vuP9iwdyyFM', name: '区役所前交差点 4K', lon: 139.70428, lat: 35.69398 },
   { id: 'gTO_FJzv70k', name: '新宿五丁目交差点 4K', lon: 139.70726, lat: 35.69389 },
   { id: 'lA6TaaMGgDo', name: '西武新宿駅 pepe前広場', lon: 139.69985, lat: 35.69525 },
-  { id: 'glJu8snzi78', name: '新宿駅東口駅前（TBS）', lon: 139.70062, lat: 35.69196 },
+  { id: '0UUu10W-K2Q', name: '新宿駅南口（TBS・サザンテラス）', lon: 139.70046, lat: 35.68950 },
+  { id: 'ZcviQPzoUCo', name: 'ゴジラロード俯瞰', lon: 139.70153, lat: 35.69405 },
+  { id: 'rB44dRVbBSw', name: '靖国通り交差点俯瞰', lon: 139.70240, lat: 35.69340 },
+  { channel: 'UC1kDVgEX2DsE295Bkum_K9Q', name: '新宿駅北側 鉄道ライブ', lon: 139.69860, lat: 35.69480 },
+  { channel: 'UCpk2ftN35L3xfoV2S5xLN2A', name: '大ガード西交差点', lon: 139.69930, lat: 35.69360 },
+  { channel: 'UC8cnCaq-MquhsebMer9A9rQ', name: '東口駅前広場（クロス新宿）', lon: 139.70085, lat: 35.69205 },
+  { channel: 'UC0bo0F5nUfsHTgUWf3FKrIw', name: '区役所通り（ゴールデン街側）', lon: 139.70435, lat: 35.69465 },
 ];
 
 function camIconTexture() {

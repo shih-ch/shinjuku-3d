@@ -138,7 +138,9 @@ document.getElementById('cam-close').addEventListener('click', () => {
 });
 function openCam(cam) {
   camTitle.textContent = cam.name;
-  camFrame.src = `https://www.youtube.com/embed/${cam.id}?autoplay=1&mute=1`;
+  camFrame.src = cam.id
+    ? `https://www.youtube.com/embed/${cam.id}?autoplay=1&mute=1`
+    : `https://www.youtube.com/embed/live_stream?channel=${cam.channel}&autoplay=1&mute=1`;
   camPanel.style.display = 'block';
 }
 
