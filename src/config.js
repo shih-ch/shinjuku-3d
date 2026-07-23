@@ -7,8 +7,12 @@ export const GROUND_ELLIPSOIDAL_H = 74.2;
 
 export const TILESETS = {
   bldg: {
-    label: '地面建築 PLATEAU LOD2',
+    label: '地面建築 PLATEAU LOD2（新宿区）',
     url: 'https://assets.cms.plateau.reearth.io/assets/2f/d4f9a7-13ad-43cb-b984-033803199eab/13104_shinjuku-ku_pref_2025_citygml_1_op_bldg_3dtiles_13104_shinjuku-ku_lod2_no_texture/tileset.json',
+  },
+  bldgShibuya: {
+    label: '地面建築 PLATEAU LOD2（渋谷区）',
+    url: 'https://assets.cms.plateau.reearth.io/assets/4c/92c509-8082-47cb-9c0c-cab712d49dbd/13113_shibuya-ku_pref_2025_citygml_1_op_bldg_3dtiles_13113_shibuya-ku_lod2_no_texture/tileset.json',
   },
   ubld: {
     label: '地下街 PLATEAU LOD4',

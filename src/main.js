@@ -11,7 +11,7 @@ import { buildPlatforms } from './platforms.js';
 import { buildRail } from './rail.js';
 import { buildTunnels } from './tunnels.js';
 import { createInk } from './ink.js';
-import { createTilesLayer } from './tiles.js';
+import { createTilesLayer, ghostRadius } from './tiles.js';
 import { TILESETS, SPACE_CATS, PALETTE } from './config.js';
 
 const app = document.getElementById('app');
@@ -179,6 +179,11 @@ const bldg = createTilesLayer({
 });
 scene.add(bldg.container);
 
+const bldgShibuya = createTilesLayer({
+  url: TILESETS.bldgShibuya.url, renderer, camera, ghost: true, errorTarget: 14,
+});
+scene.add(bldgShibuya.container);
+
 const ubld = createTilesLayer({
   url: TILESETS.ubld.url, renderer, camera, ghost: false, errorTarget: 6,
 });
@@ -311,13 +316,23 @@ function buildRailOps() {
 
 const tgBldg = document.getElementById('tg-bldg');
 const tgUbld = document.getElementById('tg-ubld');
-tgBldg.addEventListener('change', () => { bldg.container.visible = tgBldg.checked; });
+tgBldg.addEventListener('change', () => {
+  bldg.container.visible = tgBldg.checked;
+  bldgShibuya.container.visible = tgBldg.checked;
+});
 tgUbld.addEventListener('change', () => {
   ubld.container.visible = tgUbld.checked && parseFloat(sepSlider.value) <= 1.15;
 });
 
 document.getElementById('bldg-op').addEventListener('input', (e) => {
-  bldg.setGhostOpacity(parseFloat(e.target.value));
+  const op = parseFloat(e.target.value);
+  bldg.setGhostOpacity(op);
+  bldgShibuya.setGhostOpacity(op);
+});
+
+document.getElementById('bldg-rad').addEventListener('input', (e) => {
+  ghostRadius.value = parseFloat(e.target.value);
+  document.getElementById('rad-val').textContent = `${(ghostRadius.value / 1000).toFixed(1)}km`;
 });
 
 for (const radio of document.querySelectorAll('input[name="cmode"]')) {
@@ -392,7 +407,7 @@ function updateStatus() {
   if (now - statusTimer < 500) return;
   statusTimer = now;
   const stats = [];
-  for (const [name, layer] of [['建築', bldg], ['地下街', ubld]]) {
+  for (const [name, layer] of [['建築', bldg], ['建築渋谷', bldgShibuya], ['地下街', ubld]]) {
     const t = layer.tiles;
     const loading = t.stats ? t.stats.downloading + t.stats.parsing : 0;
     if (layer.container.visible) {
@@ -431,6 +446,7 @@ renderer.setAnimationLoop(() => {
   controls.update();
   camera.updateMatrixWorld();
   if (bldg.container.visible) bldg.update();
+  if (bldgShibuya.container.visible) bldgShibuya.update();
   if (ubld.container.visible) ubld.update();
   if (network) network.tick((now - t0) / 1000);
   if (particles && particles.object.visible) {

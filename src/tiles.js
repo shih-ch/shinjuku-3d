@@ -7,6 +7,28 @@ import { ORIGIN_LON, ORIGIN_LAT, GROUND_ELLIPSOIDAL_H, PALETTE } from './config.
 
 const DEG2RAD = Math.PI / 180;
 
+// 幽靈建築的顯示半徑（公尺，以車站為圓心；所有 ghost 圖層共用）
+export const ghostRadius = { value: 1300 };
+
+function injectRadialClip(mat) {
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.uRadius = ghostRadius;
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec2 vRadXZ;')
+      .replace('#include <fog_vertex>',
+        '#include <fog_vertex>\nvRadXZ = (modelMatrix * vec4(transformed, 1.0)).xz;');
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>',
+        '#include <common>\nvarying vec2 vRadXZ;\nuniform float uRadius;')
+      .replace('#include <dithering_fragment>',
+        `#include <dithering_fragment>
+        float radD = length(vRadXZ);
+        float radFade = 1.0 - smoothstep(uRadius - 180.0, uRadius, radD);
+        if (radFade < 0.01) discard;
+        gl_FragColor.a *= radFade;`);
+  };
+}
+
 /**
  * 建立一個 PLATEAU 3D Tiles 圖層。
  * ReorientationPlugin 把原點放到 (0,0,0)、X 朝西、Z 朝北；
@@ -39,6 +61,7 @@ export function createTilesLayer({ url, renderer, camera, ghost = false, errorTa
             transparent: true,
             opacity: 0.92,
           });
+          injectRadialClip(o.material);
           materials.push(o.material);
         }
       });
