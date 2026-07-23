@@ -233,6 +233,11 @@
     </section>
 
     <section>
+      <h2>現場直播</h2>
+      <label class="row"><input type="checkbox" id="tg-cam" checked />LIVE 攝影機（點擊圖示開直播）</label>
+    </section>
+
+    <section>
       <h2>體驗</h2>
       <label class="row"><input type="checkbox" id="tg-ink" checked />墨線描邊（手繪風）</label>
       <label class="row"><input type="checkbox" id="tg-ppl" checked />人流粒子</label>
@@ -254,6 +259,16 @@
     <section>
       <button class="act" id="reset-cam">回到初始視角</button>
     </section>
+  </div>
+
+  <div id="cam-panel" style="display:none;position:fixed;right:14px;bottom:44px;width:420px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;box-shadow:0 6px 22px rgba(61,54,40,0.3);z-index:20">
+    <div style="display:flex;align-items:center;margin-bottom:6px">
+      <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#d0342c;margin-right:6px"></span>
+      <b id="cam-title" style="font-size:13px"></b>
+      <button id="cam-close" style="margin-left:auto;background:none;border:none;font-size:17px;cursor:pointer;color:var(--ink)">×</button>
+    </div>
+    <iframe id="cam-frame" width="400" height="225" style="border:0;border-radius:6px;display:block"
+      allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
   </div>
 
   <div id="compass" title="點擊回正北">

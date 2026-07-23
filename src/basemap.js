@@ -8,8 +8,8 @@ const STYLES = {
 };
 
 // 原點附近的線性近似（±1.5km 內誤差 < 1m）
-const M_LON = 90520;   // 公尺／經度度 @ 35.69N
-const M_LAT = 110953;  // 公尺／緯度度
+export const M_LON = 90520;   // 公尺／經度度 @ 35.69N
+export const M_LAT = 110953;  // 公尺／緯度度
 
 const HALF = 1500; // 涵蓋半徑（公尺）
 

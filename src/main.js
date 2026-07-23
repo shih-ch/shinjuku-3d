@@ -4,6 +4,7 @@ import { buildBasemap } from './basemap.js';
 import { buildBasements } from './basements.js';
 import { buildExits } from './exits.js';
 import { buildMalls } from './malls.js';
+import { buildLivecams } from './livecams.js';
 import { buildIndoor } from './indoor.js';
 import { buildNav } from './nav.js';
 import { buildNetwork } from './network.js';
@@ -125,6 +126,22 @@ fetch('./data/malls.json')
   })
   .catch(() => {});
 
+// --- 現場直播攝影機 ---
+const livecams = buildLivecams();
+scene.add(livecams.group);
+const camPanel = document.getElementById('cam-panel');
+const camFrame = document.getElementById('cam-frame');
+const camTitle = document.getElementById('cam-title');
+document.getElementById('cam-close').addEventListener('click', () => {
+  camPanel.style.display = 'none';
+  camFrame.src = '';
+});
+function openCam(cam) {
+  camTitle.textContent = cam.name;
+  camFrame.src = `https://www.youtube.com/embed/${cam.id}?autoplay=1&mute=1`;
+  camPanel.style.display = 'block';
+}
+
 // --- 出入口編號 ---
 let exits = null;
 fetch('./data/exits.json')
@@ -210,6 +227,7 @@ const tgPlat = document.getElementById('tg-plat');
 const tgExit = document.getElementById('tg-exit');
 const tgBsmt = document.getElementById('tg-bsmt');
 const tgMall = document.getElementById('tg-mall');
+const tgCam = document.getElementById('tg-cam');
 const tgPpl = document.getElementById('tg-ppl');
 const tgInk = document.getElementById('tg-ink');
 sepSlider.addEventListener('input', () => {
@@ -245,6 +263,9 @@ tgBsmt.addEventListener('change', () => {
 tgMall.addEventListener('change', () => {
   if (malls) malls.group.visible = tgMall.checked;
 });
+tgCam.addEventListener('change', () => {
+  livecams.group.visible = tgCam.checked;
+});
 tgPpl.addEventListener('change', () => {
   if (particles) particles.object.visible = tgPpl.checked;
 });
@@ -278,7 +299,16 @@ let downPos = null;
 renderer.domElement.addEventListener('pointerdown', (e) => {
   downPos = [e.clientX, e.clientY];
 });
+const _rc = new THREE.Raycaster();
+const _ndc = new THREE.Vector2();
 renderer.domElement.addEventListener('pointerup', (e) => {
+  if (downPos && !pickMode && livecams.group.visible
+      && Math.hypot(e.clientX - downPos[0], e.clientY - downPos[1]) <= 6) {
+    _ndc.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
+    _rc.setFromCamera(_ndc, camera);
+    const hit = _rc.intersectObjects(livecams.sprites, false)[0];
+    if (hit) { openCam(hit.object.userData.cam); return; }
+  }
   if (!downPos || !pickMode || !nav) return;
   if (Math.hypot(e.clientX - downPos[0], e.clientY - downPos[1]) > 6) return;
   const node = nav.pickNode(e.clientX, e.clientY, camera, window.innerWidth, window.innerHeight);
