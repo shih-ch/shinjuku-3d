@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { buildBasemap } from './basemap.js';
+import { buildBasements } from './basements.js';
 import { buildExits } from './exits.js';
 import { buildIndoor } from './indoor.js';
 import { buildNav } from './nav.js';
@@ -100,6 +101,18 @@ fetch('./data/network.json')
   })
   .catch(() => {});
 
+// --- 建物地下量體（推定）---
+let basements = null;
+fetch('./data/basements.json')
+  .then((r) => r.json())
+  .then((data) => {
+    basements = buildBasements(data);
+    basements.setSeparation(parseFloat(sepSlider.value));
+    basements.group.visible = tgBsmt.checked;
+    scene.add(basements.group);
+  })
+  .catch(() => {});
+
 // --- 出入口編號 ---
 let exits = null;
 fetch('./data/exits.json')
@@ -178,6 +191,7 @@ const tgNet = document.getElementById('tg-net');
 const tgTun = document.getElementById('tg-tun');
 const tgPlat = document.getElementById('tg-plat');
 const tgExit = document.getElementById('tg-exit');
+const tgBsmt = document.getElementById('tg-bsmt');
 const tgPpl = document.getElementById('tg-ppl');
 const tgInk = document.getElementById('tg-ink');
 sepSlider.addEventListener('input', () => {
@@ -189,6 +203,7 @@ sepSlider.addEventListener('input', () => {
   if (tunnels) tunnels.setSeparation(s);
   if (platforms) platforms.setSeparation(s);
   if (nav) nav.setSeparation(s);
+  if (basements) basements.setSeparation(s);
   // 分離模式下 PLATEAU 地下街仍是實寸，自動隱藏避免混淆
   const exploded = s > 1.15;
   ubld.container.visible = !exploded && tgUbld.checked;
@@ -205,6 +220,9 @@ tgPlat.addEventListener('change', () => {
 });
 tgExit.addEventListener('change', () => {
   if (exits) exits.group.visible = tgExit.checked;
+});
+tgBsmt.addEventListener('change', () => {
+  if (basements) basements.group.visible = tgBsmt.checked;
 });
 tgPpl.addEventListener('change', () => {
   if (particles) particles.object.visible = tgPpl.checked;
