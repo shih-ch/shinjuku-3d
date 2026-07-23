@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { buildBasemap } from './basemap.js';
 import { buildBasements } from './basements.js';
 import { buildExits } from './exits.js';
+import { buildMalls } from './malls.js';
 import { buildIndoor } from './indoor.js';
 import { buildNav } from './nav.js';
 import { buildNetwork } from './network.js';
@@ -113,6 +114,17 @@ fetch('./data/basements.json')
   })
   .catch(() => {});
 
+// --- 商場標籤 ---
+let malls = null;
+fetch('./data/malls.json')
+  .then((r) => r.json())
+  .then((data) => {
+    malls = buildMalls(data);
+    malls.group.visible = tgMall.checked;
+    scene.add(malls.group);
+  })
+  .catch(() => {});
+
 // --- 出入口編號 ---
 let exits = null;
 fetch('./data/exits.json')
@@ -197,6 +209,7 @@ const tgTun = document.getElementById('tg-tun');
 const tgPlat = document.getElementById('tg-plat');
 const tgExit = document.getElementById('tg-exit');
 const tgBsmt = document.getElementById('tg-bsmt');
+const tgMall = document.getElementById('tg-mall');
 const tgPpl = document.getElementById('tg-ppl');
 const tgInk = document.getElementById('tg-ink');
 sepSlider.addEventListener('input', () => {
@@ -228,6 +241,9 @@ tgExit.addEventListener('change', () => {
 });
 tgBsmt.addEventListener('change', () => {
   if (basements) basements.group.visible = tgBsmt.checked;
+});
+tgMall.addEventListener('change', () => {
+  if (malls) malls.group.visible = tgMall.checked;
 });
 tgPpl.addEventListener('change', () => {
   if (particles) particles.object.visible = tgPpl.checked;
